@@ -25,15 +25,15 @@ defmodule Day06 do
 
     :persistent_term.put(Day06, {guard, grid})
 
-    Enum.flat_map(grid, fn {pos, what} ->
-      cond do
-        elem(guard, 0) === pos ->
-          []
-        what === ?\# ->
-          []
-        what === ?. ->
-          [pos]
-      end
+    # My original solution tried putting obstacles on all free
+    # squares. Looking at the solution by @igorb in the elixir forum,
+    # I realized that it is enough to put obstacles on squares that
+    # the guard had walked on. This change reduces the runtime from
+    # about 1 second to 0.2 seconds.
+    walk(guard, grid, MapSet.new())
+    |> Enum.reject(fn pos ->
+      # Don't put on obstacle on the square of the guard.
+      elem(guard, 0) === pos
     end)
     |> Task.async_stream(fn pos ->
       {guard, grid} = :persistent_term.get(Day06)
