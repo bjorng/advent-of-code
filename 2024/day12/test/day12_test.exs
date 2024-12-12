@@ -20,7 +20,7 @@ defmodule Day12Test do
 
   test "part 2 with my input data" do
     # 879304 is too low
-    assert Day12.part2(input()) == nil
+#    assert Day12.part2(input()) == nil
   end
 
   defp example() do

@@ -72,6 +72,19 @@ defmodule Day12 do
       {Enum.min(region), region}
     end)
 
+    inside = Enum.flat_map(regions, fn {id, region} ->
+      type = Map.fetch!(grid, id)
+      case inside_region?(region, type, grid) do
+        nil ->
+          []
+        {position, _} ->
+          Enum.find_value(regions, fn {rid, reg} -> position in reg && [{rid, id}] end)
+      end
+    end)
+    |> Enum.group_by(fn {rid, _} -> rid end, fn {_, id} -> id end)
+
+    IO.inspect inside
+
     regions
     |> Enum.map(&cost_part2(&1, grid))
     |> Enum.sum
@@ -81,21 +94,13 @@ defmodule Day12 do
 #    IO.inspect region, label: :region
 #    IO.inspect sides, label: :sides
 
-    start = Enum.min(region)
-    type = Map.fetch!(grid, start)
+    #start = Enum.min(region)
+    #type = Map.fetch!(grid, start)
 #    IO.inspect [type], label: :type
 
     sides = walk(region, grid)
 #    IO.inspect sides
 #    sides = sides + 1
-
-    sides = case inside_region?(region, type, grid) do
-              nil ->
-                sides
-              inside ->
-#                IO.puts "#{[type]} is inside #{[inside]}"
-                2 * sides
-            end
 
     area = Enum.count(region)
 
@@ -148,16 +153,16 @@ defmodule Day12 do
             if type === other_type do
               []
             else
-              [other_type]
+              [{position, other_type}]
             end
-          %{} -> [:outside]
+          %{} -> [{nil, :outside}]
         end
       end)
     end)
-    |> Enum.uniq
+    |> Enum.uniq_by(&elem(&1, 1))
     |> then(fn types ->
       case types do
-        [type] -> type
+        [item] -> item
         _ -> nil
       end
     end)
