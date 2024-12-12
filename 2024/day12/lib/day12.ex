@@ -78,10 +78,10 @@ defmodule Day12 do
 
     start = hd(MapSet.to_list(region))
     type = Map.fetch!(grid, start)
-    IO.inspect [type], label: :type
+#    IO.inspect [type], label: :type
 
     sides = walk(region, grid)
-    IO.inspect sides
+#    IO.inspect sides
 #    sides = sides + 1
     area = Enum.count(region)
 
@@ -92,14 +92,14 @@ defmodule Day12 do
     start = MapSet.to_list(region) |> Enum.min
     dir = {0, 1}
     type = Map.fetch!(grid, start)
-    IO.inspect {start, dir, type}
+#    IO.inspect {start, dir, type}
 #    IO.inspect grid
     walk(start, dir, {start, type, grid}, 1)
   end
 
   defp walk(current, dir, {start, type, grid}=static, num_sides) do
     if current === start and turn_right(dir) === {0, 1} do
-      IO.inspect {current, num_sides}
+#      IO.inspect {current, num_sides}
       num_sides
     else
       next = add(current, dir)
