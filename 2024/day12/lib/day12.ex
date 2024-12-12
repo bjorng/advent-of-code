@@ -87,29 +87,32 @@ defmodule Day12 do
     dir = {0, 1}
     type = Map.fetch!(grid, start)
     IO.inspect {start, dir, type}
-    IO.inspect grid
+#    IO.inspect grid
     walk(start, dir, {start, type, grid}, 1)
   end
 
   defp walk(current, dir, {start, type, grid}=static, num_sides) do
     next = add(current, dir)
-    if next === start do
+    if current === start and turn_right(dir) === {0, 1} do
       IO.inspect {current, num_sides}
       num_sides
     else
       above = add(next, turn_left(dir))
       fence_above? = fence?(grid, type, above)
       fence_here? = fence?(grid, type, next)
-      IO.inspect {{current, dir}, above, fence_above?, next, fence_here?}
+#      IO.inspect {{current, dir}, {above, Map.get(grid, above)}, fence_above?, next, fence_here?}
+
       cond do
         fence_above? and (not fence_here?) ->
           walk(next, dir, static, num_sides)
-        fence_above? and fence_here? ->
-          walk(current, turn_left(dir), static, num_sides + 1)
-        not fence_above? and fence_here? ->
-          walk(current, turn_right(dir), static, num_sides + 1)
-        not fence_above? and (not fence_here?) ->
-          walk(current, turn_left(dir), static, num_sides + 1)
+        fence_here? ->
+	  walk(current, turn_right(dir), static, num_sides + 1)
+	true ->
+	  if not fence?(grid, type, add(next, turn_left(dir))) do
+            walk(next, dir, static, num_sides)
+	  else
+	    walk(next, turn_left(dir), static, num_sides)
+	  end
       end
     end
   end
