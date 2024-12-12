@@ -83,6 +83,14 @@ defmodule Day12 do
     sides = walk(region, grid)
 #    IO.inspect sides
 #    sides = sides + 1
+
+    case inside_region?(region, type, grid) do
+      nil ->
+        nil
+      inside ->
+        IO.puts "#{[type]} is inside #{[inside]}"
+    end
+
     area = Enum.count(region)
 
     area * sides
@@ -121,6 +129,32 @@ defmodule Day12 do
 #	  end
       end
     end
+  end
+
+  defp inside_region?(region, type, grid) do
+    region
+    |> MapSet.to_list
+    |> Enum.flat_map(fn plot ->
+      adjacent_squares(plot)
+      |> Enum.flat_map(fn position ->
+        case grid do
+          %{^position => other_type} ->
+            if type === other_type do
+              []
+            else
+              [other_type]
+            end
+          %{} -> [:outside]
+        end
+      end)
+    end)
+    |> Enum.uniq
+    |> then(fn types ->
+      case types do
+        [type] -> type
+        _ -> nil
+      end
+    end)
   end
 
   defp fence?(grid, type, position) do
