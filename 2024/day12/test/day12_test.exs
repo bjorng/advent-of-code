@@ -12,15 +12,16 @@ defmodule Day12Test do
   end
 
   test "part 2 with example" do
-#    assert Day12.part2(small_example()) == 80
-#    assert Day12.part2(e_shaped()) == 236
+    assert Day12.part2(small_example()) == 80
+    assert Day12.part2(e_shaped()) == 236
     assert Day12.part2(overlapping()) == 436
     assert Day12.part2(example()) == 1206
   end
 
   test "part 2 with my input data" do
     # 879304 is too low
-#    assert Day12.part2(input()) == nil
+    # 919546 is too high
+    assert Day12.part2(input()) == nil
   end
 
   defp example() do

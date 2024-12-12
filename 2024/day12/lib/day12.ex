@@ -71,6 +71,7 @@ defmodule Day12 do
     |> Enum.map(fn region ->
       {Enum.min(region), region}
     end)
+    |> Map.new
 
     inside = Enum.flat_map(regions, fn {id, region} ->
       type = Map.fetch!(grid, id)
@@ -78,19 +79,17 @@ defmodule Day12 do
         nil ->
           []
         {position, _} ->
-          Enum.find_value(regions, fn {rid, reg} -> position in reg && [{rid, id}] end)
+          Enum.find_value(regions, fn {rid, reg} -> position in reg && [{rid, Map.fetch!(regions, id)}] end)
       end
     end)
     |> Enum.group_by(fn {rid, _} -> rid end, fn {_, id} -> id end)
 
-    IO.inspect inside
-
     regions
-    |> Enum.map(&cost_part2(&1, grid))
+    |> Enum.map(&cost_part2(&1, grid, inside))
     |> Enum.sum
   end
 
-  defp cost_part2({_, region}, grid) do
+  defp cost_part2({id, region}, grid, inside) do
 #    IO.inspect region, label: :region
 #    IO.inspect sides, label: :sides
 
@@ -99,8 +98,11 @@ defmodule Day12 do
 #    IO.inspect [type], label: :type
 
     sides = walk(region, grid)
-#    IO.inspect sides
-#    sides = sides + 1
+
+    sides = Map.get(inside, id, [])
+    |> Enum.reduce(sides, fn region, sides ->
+      sides + walk(region, grid)
+    end)
 
     area = Enum.count(region)
 
