@@ -81,6 +81,14 @@ defmodule Day12 do
         {position, _} ->
           Enum.find_value(regions, fn {rid, reg} -> position in reg && [{rid, Map.fetch!(regions, id)}] end)
       end
+      |> tap(fn res ->
+        case res do
+          [{rid, _}] ->
+            IO.puts "#{[Map.get(grid, id)]} is inside #{[Map.get(grid, rid)]}"
+          [] ->
+            nil
+        end
+      end)
     end)
     |> Enum.group_by(fn {rid, _} -> rid end, fn {_, id} -> id end)
 
