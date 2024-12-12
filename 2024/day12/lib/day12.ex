@@ -75,21 +75,43 @@ defmodule Day12 do
   defp cost_part2(region, grid) do
     region = MapSet.to_list(region)
     type = Map.fetch!(grid, hd(region))
-    perimeter =
-      region
-      |> Enum.map(fn plot ->
-        adjacent_squares(plot)
-        |> Enum.reject(fn adjacent ->
-          Map.get(grid, adjacent, nil) === type
-        end)
-        |> Enum.count
+    fences = region
+    |> Enum.flat_map(fn plot ->
+      plot
+      |> adjacent_squares
+      |> Enum.reject(fn adjacent ->
+        Map.get(grid, adjacent, nil) === type
       end)
-      |> Enum.sum
+    end)
+    
+    blurf(fences, 0) + blurf(fences, 1)
+#    |> Enum.sum
 
-    area = Enum.count(region)
+#    area = Enum.count(region)
 
-    area * perimeter
+#    area * perimeter
   end
+
+  defp blurf(fences, index) do
+    other_index = rem(index + 1, 2)
+    fences
+    |> Enum.group_by(&elem(&1, index), &elem(&1, other_index))
+    |> Enum.map(fn {_, positions} ->
+      positions
+      |> Enum.sort
+      |> count_sides(1)
+    end)
+    |> Enum.sum
+  end
+
+  defp count_sides([a, b | rest], sides) do
+    if (a + 1 === b) do
+      count_sides([b | rest], sides)
+    else
+      count_sides([b | rest], sides + 1)
+    end
+  end
+  defp count_sides([_], sides), do: sides
 
   defp adjacent_squares({row, col}) do
     [{row - 1, col}, {row, col - 1}, {row, col + 1}, {row + 1, col}]

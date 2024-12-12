@@ -12,6 +12,7 @@ defmodule Day12Test do
   end
 
   test "part 2 with example" do
+    assert Day12.part2(small_example()) == 80
     assert Day12.part2(example()) == 1206
   end
 
