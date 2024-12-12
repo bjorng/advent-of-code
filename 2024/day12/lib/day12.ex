@@ -104,7 +104,7 @@ defmodule Day12 do
       sides + walk(region, grid)
     end)
 
-    area = Enum.count(region)
+   area = Enum.count(region)
 
     area * sides
   end
@@ -146,7 +146,6 @@ defmodule Day12 do
 
   defp inside_region?(region, type, grid) do
     region
-    |> MapSet.to_list
     |> Enum.flat_map(fn plot ->
       adjacent_squares(plot)
       |> Enum.flat_map(fn position ->
