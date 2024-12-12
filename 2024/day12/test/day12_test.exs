@@ -3,11 +3,12 @@ defmodule Day12Test do
   doctest Day12
 
   test "part 1 with example" do
-    assert Day12.part1(example()) == nil
+    assert Day12.part1(small_example()) == 140
+    assert Day12.part1(example()) == 1930
   end
 
   test "part 1 with my input data" do
-    assert Day12.part1(input()) == nil
+#    assert Day12.part1(input()) == nil
   end
 
   test "part 2 with example" do
@@ -20,7 +21,26 @@ defmodule Day12Test do
 
   defp example() do
     """
+    RRRRIICCFF
+    RRRRIICCCF
+    VVRRRCCFFF
+    VVRCCCJFFF
+    VVVVCJJCFE
+    VVIVCCJJEE
+    VVIIICJJEE
+    MIIIIIJJEE
+    MIIISIJEEE
+    MMMISSJEEE
+    """
+    |> String.split("\n", trim: true)
+  end
 
+  defp small_example() do
+    """
+    AAAA
+    BBCD
+    BBCC
+    EEEC
     """
     |> String.split("\n", trim: true)
   end

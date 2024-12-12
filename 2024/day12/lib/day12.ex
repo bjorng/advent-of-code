@@ -9,5 +9,8 @@ defmodule Day12 do
 
   defp parse(input) do
     input
+    |> Enum.map(fn line ->
+      line
+    end)
   end
 end
