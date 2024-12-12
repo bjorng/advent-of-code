@@ -76,14 +76,20 @@ defmodule Day12 do
 #    IO.inspect region, label: :region
 #    IO.inspect sides, label: :sides
 
+    start = hd(MapSet.to_list(region))
+    type = Map.fetch!(grid, start)
+    IO.inspect [type], label: :type
+
     sides = walk(region, grid)
+    IO.inspect sides
+#    sides = sides + 1
     area = Enum.count(region)
 
     area * sides
   end
 
   defp walk(region, grid) do
-    start = hd(MapSet.to_list(region))
+    start = MapSet.to_list(region) |> Enum.min
     dir = {0, 1}
     type = Map.fetch!(grid, start)
     IO.inspect {start, dir, type}
@@ -108,11 +114,11 @@ defmodule Day12 do
         fence_here? ->
 	  walk(current, turn_right(dir), static, num_sides + 1)
 	true ->
-	  if not fence?(grid, type, add(next, turn_left(dir))) do
-            walk(next, dir, static, num_sides)
-	  else
-	    walk(next, turn_left(dir), static, num_sides)
-	  end
+#	  if not fence?(grid, type, add(next, turn_left(dir))) do
+#            walk(next, dir, static, num_sides)
+#	  else
+	    walk(next, turn_left(dir), static, num_sides + 1)
+#	  end
       end
     end
   end
@@ -141,7 +147,7 @@ defmodule Day12 do
       |> Enum.with_index
       |> Enum.flat_map(fn {char, col} ->
         position = {row, col}
-        [{position, char - ?0}]
+        [{position, char}]
       end)
     end)
     |> Map.new

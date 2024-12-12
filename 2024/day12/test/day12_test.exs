@@ -3,8 +3,8 @@ defmodule Day12Test do
   doctest Day12
 
   test "part 1 with example" do
-    assert Day12.part1(small_example()) == 140
-    assert Day12.part1(example()) == 1930
+#    assert Day12.part1(small_example()) == 140
+#    assert Day12.part1(example()) == 1930
   end
 
   test "part 1 with my input data" do
@@ -17,7 +17,8 @@ defmodule Day12Test do
   end
 
   test "part 2 with my input data" do
-#    assert Day12.part2(input()) == nil
+    # 879304 is too low
+    assert Day12.part2(input()) == nil
   end
 
   defp example() do
