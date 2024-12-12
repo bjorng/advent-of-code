@@ -92,11 +92,11 @@ defmodule Day12 do
   end
 
   defp walk(current, dir, {start, type, grid}=static, num_sides) do
-    next = add(current, dir)
     if current === start and turn_right(dir) === {0, 1} do
       IO.inspect {current, num_sides}
       num_sides
     else
+      next = add(current, dir)
       above = add(next, turn_left(dir))
       fence_above? = fence?(grid, type, above)
       fence_here? = fence?(grid, type, next)
