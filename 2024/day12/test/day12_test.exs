@@ -19,6 +19,7 @@ defmodule Day12Test do
     assert Day12.part2(overlapping1()) == 368
     assert Day12.part2(overlapping2()) == 4 * 9 + 8 * 16
     assert Day12.part2(overlapping3()) == 8 * 10 + 12 * 15
+    assert Day12.part2(small_example2()) == 9 * 8 + 3 * 6
   end
 
   test "part 2 with my input data" do
@@ -105,6 +106,15 @@ defmodule Day12Test do
     XXXXO
     OXXXO
     OOOOO
+    """
+    |> String.split("\n", trim: true)
+  end
+
+  defp small_example2() do
+    """
+    AABB
+    AAAB
+    AAAA
     """
     |> String.split("\n", trim: true)
   end

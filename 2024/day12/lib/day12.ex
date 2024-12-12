@@ -84,7 +84,8 @@ defmodule Day12 do
       |> tap(fn res ->
         case res do
           [{rid, _}] ->
-            IO.puts "#{[Map.get(grid, id)]} is inside #{[Map.get(grid, rid)]}"
+            #            IO.puts "#{[Map.get(grid, id)]} is inside #{[Map.get(grid, rid)]}"
+            nil
           [] ->
             nil
         end
