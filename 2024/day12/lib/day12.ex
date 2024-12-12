@@ -12,6 +12,28 @@ defmodule Day12 do
         {[region], seen}
       end
     end)
+    |> then(&elem(&1, 0))
+    |> Enum.map(&area_and_perimeter(&1, grid))
+    |> Enum.sum
+  end
+
+  defp area_and_perimeter(region, grid) do
+    region = MapSet.to_list(region)
+    type = Map.fetch!(grid, hd(region))
+    perimeter =
+      region
+      |> Enum.map(fn plot ->
+        adjacent_squares(plot)
+        |> Enum.reject(fn adjacent ->
+          Map.get(grid, adjacent, nil) === type
+        end)
+        |> Enum.count
+      end)
+      |> Enum.sum
+
+    area = Enum.count(region)
+
+    area * perimeter
   end
 
   defp find_region(plot, type, grid) do

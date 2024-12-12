@@ -8,7 +8,7 @@ defmodule Day12Test do
   end
 
   test "part 1 with my input data" do
-#    assert Day12.part1(input()) == nil
+    assert Day12.part1(input()) == 1486324
   end
 
   test "part 2 with example" do
