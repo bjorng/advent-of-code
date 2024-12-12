@@ -83,23 +83,28 @@ defmodule Day12 do
         Map.get(grid, adjacent, nil) === type
       end)
     end)
-    
-    blurf(fences, 0) + blurf(fences, 1)
+
+    sides = blurf(fences, 0) + blurf(fences, 1)
 #    |> Enum.sum
 
-#    area = Enum.count(region)
+    IO.inspect region, label: :region
+    IO.inspect sides, label: :sides
 
-#    area * perimeter
+    area = Enum.count(region)
+
+    area * sides
   end
 
   defp blurf(fences, index) do
     other_index = rem(index + 1, 2)
     fences
     |> Enum.group_by(&elem(&1, index), &elem(&1, other_index))
-    |> Enum.map(fn {_, positions} ->
+    |> Enum.map(fn {xx, positions} ->
+      IO.inspect xx
       positions
       |> Enum.sort
       |> count_sides(1)
+      |> dbg
     end)
     |> Enum.sum
   end
