@@ -68,17 +68,20 @@ defmodule Day12 do
       end
     end)
     |> then(&elem(&1, 0))
+    |> Enum.map(fn region ->
+      {Enum.min(region), region}
+    end)
 
     regions
     |> Enum.map(&cost_part2(&1, grid))
     |> Enum.sum
   end
 
-  defp cost_part2(region, grid) do
+  defp cost_part2({_, region}, grid) do
 #    IO.inspect region, label: :region
 #    IO.inspect sides, label: :sides
 
-    start = hd(MapSet.to_list(region))
+    start = Enum.min(region)
     type = Map.fetch!(grid, start)
 #    IO.inspect [type], label: :type
 
@@ -90,7 +93,7 @@ defmodule Day12 do
               nil ->
                 sides
               inside ->
-                IO.puts "#{[type]} is inside #{[inside]}"
+#                IO.puts "#{[type]} is inside #{[inside]}"
                 2 * sides
             end
 
