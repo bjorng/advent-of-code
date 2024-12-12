@@ -57,7 +57,7 @@ defmodule Day12 do
   def part2(input) do
     grid = parse(input)
     seen = MapSet.new()
-    grid
+    regions = grid
     |> Enum.flat_map_reduce(seen, fn {plot, type}, seen ->
       if plot in seen do
         {[], seen}
@@ -68,6 +68,8 @@ defmodule Day12 do
       end
     end)
     |> then(&elem(&1, 0))
+
+    regions
     |> Enum.map(&cost_part2(&1, grid))
     |> Enum.sum
   end
@@ -84,12 +86,13 @@ defmodule Day12 do
 #    IO.inspect sides
 #    sides = sides + 1
 
-    case inside_region?(region, type, grid) do
-      nil ->
-        nil
-      inside ->
-        IO.puts "#{[type]} is inside #{[inside]}"
-    end
+    sides = case inside_region?(region, type, grid) do
+              nil ->
+                sides
+              inside ->
+                IO.puts "#{[type]} is inside #{[inside]}"
+                2 * sides
+            end
 
     area = Enum.count(region)
 
