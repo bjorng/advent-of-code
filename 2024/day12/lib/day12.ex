@@ -5,7 +5,7 @@ defmodule Day12 do
     grid
     |> Enum.flat_map_reduce(seen, fn {plot, type}, seen ->
       if plot in seen do
-        []
+        {[], seen}
       else
         region = find_region(plot, type, grid)
         seen = MapSet.union(seen, region)
@@ -21,16 +21,16 @@ defmodule Day12 do
   defp find_region([plot|plots], type, grid, region) do
     cond do
       plot in region ->
-        find_region(plots, grid, region)
+        find_region(plots, type, grid, region)
       Map.get(grid, plot, nil) === type ->
         region = MapSet.put(region, plot)
         plots = adjacent_squares(plot) ++ plots
-        find_region(plots, grid, region)
+        find_region(plots, type, grid, region)
       true ->
-        find_region(plots, grid, region)
+        find_region(plots, type, grid, region)
     end
   end
-  defp find_region([], _, _, region), do: region
+  defp find_region([], _type, _grid, region), do: region
 
   def part2(input) do
     parse(input)
