@@ -73,50 +73,58 @@ defmodule Day12 do
   end
 
   defp cost_part2(region, grid) do
-    region = MapSet.to_list(region)
-    type = Map.fetch!(grid, hd(region))
-    fences = region
-    |> Enum.flat_map(fn plot ->
-      plot
-      |> adjacent_squares
-      |> Enum.reject(fn adjacent ->
-        Map.get(grid, adjacent, nil) === type
-      end)
-    end)
+#    IO.inspect region, label: :region
+#    IO.inspect sides, label: :sides
 
-    sides = blurf(fences, 0) + blurf(fences, 1)
-#    |> Enum.sum
-
-    IO.inspect region, label: :region
-    IO.inspect sides, label: :sides
-
+    sides = walk(region, grid)
     area = Enum.count(region)
 
     area * sides
   end
 
-  defp blurf(fences, index) do
-    other_index = rem(index + 1, 2)
-    fences
-    |> Enum.group_by(&elem(&1, index), &elem(&1, other_index))
-    |> Enum.map(fn {xx, positions} ->
-      IO.inspect xx
-      positions
-      |> Enum.sort
-      |> count_sides(1)
-      |> dbg
-    end)
-    |> Enum.sum
+  defp walk(region, grid) do
+    start = hd(MapSet.to_list(region))
+    dir = {0, 1}
+    type = Map.fetch!(grid, start)
+    IO.inspect {start, dir, type}
+    IO.inspect grid
+    walk(start, dir, {start, type, grid}, 1)
   end
 
-  defp count_sides([a, b | rest], sides) do
-    if (a + 1 === b) do
-      count_sides([b | rest], sides)
+  defp walk(current, dir, {start, type, grid}=static, num_sides) do
+    next = add(current, dir)
+    if next === start do
+      IO.inspect {current, num_sides}
+      num_sides
     else
-      count_sides([b | rest], sides + 1)
+      above = add(next, turn_left(dir))
+      fence_above? = fence?(grid, type, above)
+      fence_here? = fence?(grid, type, next)
+      IO.inspect {{current, dir}, above, fence_above?, next, fence_here?}
+      cond do
+        fence_above? and (not fence_here?) ->
+          walk(next, dir, static, num_sides)
+        fence_above? and fence_here? ->
+          walk(current, turn_left(dir), static, num_sides + 1)
+        not fence_above? and fence_here? ->
+          walk(current, turn_right(dir), static, num_sides + 1)
+        not fence_above? and (not fence_here?) ->
+          walk(current, turn_left(dir), static, num_sides + 1)
+      end
     end
   end
-  defp count_sides([_], sides), do: sides
+
+  defp fence?(grid, type, position) do
+    Map.get(grid, position, nil) !== type
+  end
+
+  defp add({a, b}, {c, d}), do: {a + c, b + d}
+
+  defp turn_left({a, b}), do: {-b, a}
+
+  defp turn_right({a, b}), do: {b, -a}
+
+#  defp rotate180({a, b}), do: {-a, -b}
 
   defp adjacent_squares({row, col}) do
     [{row - 1, col}, {row, col - 1}, {row, col + 1}, {row + 1, col}]
