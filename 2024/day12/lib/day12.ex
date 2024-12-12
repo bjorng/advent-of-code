@@ -55,7 +55,40 @@ defmodule Day12 do
   defp find_region([], _type, _grid, region), do: region
 
   def part2(input) do
-    parse(input)
+    grid = parse(input)
+    seen = MapSet.new()
+    grid
+    |> Enum.flat_map_reduce(seen, fn {plot, type}, seen ->
+      if plot in seen do
+        {[], seen}
+      else
+        region = find_region(plot, type, grid)
+        seen = MapSet.union(seen, region)
+        {[region], seen}
+      end
+    end)
+    |> then(&elem(&1, 0))
+    |> Enum.map(&cost_part2(&1, grid))
+    |> Enum.sum
+  end
+
+  defp cost_part2(region, grid) do
+    region = MapSet.to_list(region)
+    type = Map.fetch!(grid, hd(region))
+    perimeter =
+      region
+      |> Enum.map(fn plot ->
+        adjacent_squares(plot)
+        |> Enum.reject(fn adjacent ->
+          Map.get(grid, adjacent, nil) === type
+        end)
+        |> Enum.count
+      end)
+      |> Enum.sum
+
+    area = Enum.count(region)
+
+    area * perimeter
   end
 
   defp adjacent_squares({row, col}) do
