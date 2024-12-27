@@ -109,7 +109,7 @@ construct_tree(Gates, Wire) ->
 format_wire(Wire) ->
     case Wire of
         {Type, N} ->
-            [hd(atom_to_list(Type)) | integer_to_list(N)];
+            [hd(atom_to_list(Type)), N div 10 + $0, N rem 10 + $0];
         _ ->
             atom_to_list(Wire)
     end.

@@ -221,8 +221,13 @@ defmodule Day24 do
 
   defp wire_to_atom(wire) do
     case wire do
-      {:z, n} -> String.to_atom("z#{n}")
-      _ -> wire
+      {:z, n} ->
+        n
+        |> Integer.to_string
+        |> String.pad_leading(3, ["z", "0"])
+        |> String.to_atom
+      _ ->
+        wire
     end
   end
 
