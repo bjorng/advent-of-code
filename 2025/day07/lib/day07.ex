@@ -7,23 +7,20 @@ defmodule Day07 do
 
   defp split_beams(_beams, [], num_splits), do: num_splits
   defp split_beams(beams, [splits | splitters], num_splits) do
-    {beams, num_splits} = split_beams(beams, splits, MapSet.new(), num_splits)
+    {beams, num_splits} = split_beams(beams, splits, [], num_splits)
     split_beams(beams, splitters, num_splits)
   end
 
   defp split_beams([], _splitters, new, num_splits) do
-    {MapSet.to_list(new), num_splits}
+    {Enum.uniq(new), num_splits}
   end
   defp split_beams([column | beams], splits, new, num_splits) do
     case Enum.member?(splits, column) do
       true ->
-        new_splits = [column - 1, column + 1]
-        |> Enum.reject(&(&1 in new))
-        |> MapSet.new
-        new = MapSet.union(new_splits, new)
+        new = [column - 1, column + 1 | new]
         split_beams(beams, splits, new, num_splits + 1)
       false ->
-        new = MapSet.put(new, column)
+        new = [column | new]
         split_beams(beams, splits, new, num_splits)
     end
   end
