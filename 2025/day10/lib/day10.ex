@@ -61,10 +61,11 @@ defmodule Day10 do
     {nil, memo}
   end
   defp configure_joltage([button | buttons], current, levels, memo) do
-    key = (current <<< 8) ||| (length(buttons) + 1)
+#    key = (current <<< 8) ||| (length(buttons) + 1)
     case memo do
-      %{^key => best} ->
-        {best, memo}
+#      %{^key => best} ->
+#        IO.inspect({key, best})
+#        {best, memo}
       %{} ->
 #      	IO.inspect({button, current, levels})
         case blurf(button, current, levels, buttons) do
@@ -76,7 +77,8 @@ defmodule Day10 do
             presses = min..max//1
 
             {best, memo} = press(presses, button, buttons, current, levels, memo)
-            {best, Map.put(memo, key, best)}
+#            {best, Map.put(memo, key, best)}
+            {best, memo}
         end
     end
   end
