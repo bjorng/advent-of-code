@@ -4,8 +4,23 @@ defmodule Day10 do
   def part1(input) do
     machines = parse(input)
     |> Enum.map(fn {lights, buttons, _} ->
-      {lights, buttons}
+      {n, _} = configure(buttons, 0, lights, %{})
+      n
     end)
+    |> Enum.sum
+  end
+
+  defp configure(_, lights, lights, memo) do
+    {0, memo}
+  end
+  defp configure([], _current, _lights, memo) do
+    {nil, memo}
+  end
+  defp configure([button | buttons], current, lights, memo) do
+    {n1, memo} = configure(buttons, current, lights, memo)
+    {n2, memo} = configure(buttons, bxor(current, button), lights, memo)
+    n = if n2 === nil, do: nil, else: n2 + 1
+    {min(n1, n), memo}
   end
 
   def part2(input) do
