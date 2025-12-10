@@ -26,10 +26,33 @@ defmodule Day10 do
   def part2(input) do
     parse(input)
     |> Enum.map(fn {_, buttons, joltage} ->
-      joltage = Enum.reverse(joltage)
-      Enum.map(buttons, fn button ->
+      max_presses = Enum.max(joltage)
+      joltage = Enum.reduce(joltage, 0, fn level, levels ->
+        (levels <<< 8) ||| level
+      end)
+
+      buttons = Enum.map(buttons, fn button ->
         increments(button, 0)
       end)
+      configure_joltage(buttons, 0..max_presses, 0, joltage, %{})
+    end)
+  end
+
+  defp configure_joltage(_, _max_presses, levels, levels, memo) do
+    {0, memo}
+  end
+  defp configure_joltage([], _max_presses, _current, _levels, memo) do
+    {nil, memo}
+  end
+  defp configure_joltage([button | buttons], max_presses, current, levels, memo) do
+    press(max_presses, button, buttons, current, levels, memo)
+  end
+
+  defp press(presses, button, buttons, current, levels, memo) do
+    Enum.reduce(presses, {nil, current, memo}, fn times, {best, current, memo} ->
+      {n, memo} = configure_joltage(buttons, presses, current, levels, memo)
+      n = if n === nil, do: nil, else: n + times
+      {min(n, best), current ||| button, memo}
     end)
   end
 
