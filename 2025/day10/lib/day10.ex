@@ -61,27 +61,38 @@ defmodule Day10 do
     {nil, memo}
   end
   defp configure_joltage([button | buttons], current, levels, memo) do
-#    key = (current <<< 8) ||| (length(buttons) + 1)
-    case memo do
-#      %{^key => best} ->
-#        IO.inspect({key, best})
-#        {best, memo}
-      %{} ->
-        #      	IO.inspect({button, current, levels})
-        next = next(buttons)
-        case blurf(button, current, levels, next) do
-          true ->
-            {nil, memo}
-          false ->
-            min = min_presses(current, levels, next)
-            max = max_presses(button, current, levels, nil)
-            presses = min..max//1
+    next = next(buttons)
+    case blurf(button, current, levels, next) do
+      true ->
+        {nil, memo}
+      false ->
+        min = min_presses(current, levels, next)
+        max = max_presses(button, current, levels, nil)
+        presses = min..max//1
 
-            {best, memo} = press(presses, button, buttons, current, levels, memo)
-#            {best, Map.put(memo, key, best)}
-            {best, memo}
-        end
+        press(presses, button, buttons, current, levels, memo)
     end
+  end
+
+  defp press(presses, button, buttons, current, levels, memo) do
+    #    IO.inspect({presses, button, current, levels})
+    current = if Range.size(presses) === 0 do
+      current
+    else
+      current + presses.first * button
+    end
+    Enum.reduce(presses, {nil, current, memo}, fn times, {best, current, memo} ->
+      {n, memo} = configure_joltage(buttons, current, levels, memo)
+      if n === nil do
+        {best, current + button, memo}
+      else
+        result = min(n + times, best)
+        {result, current + button, memo}
+      end
+    end)
+    |> then(fn {best, _, memo} ->
+      {best, memo}
+    end)
   end
 
   defp max_presses(_button, _current, 0, smallest), do: smallest
@@ -135,27 +146,6 @@ defmodule Day10 do
       {_, _, _, _} ->
         do_blurf(button >>> 8, current >>> 8, levels >>> 8, next >>> 8, largest);
     end
-  end
-
-  defp press(presses, button, buttons, current, levels, memo) do
-    #    IO.inspect({presses, button, current, levels})
-    current = if Range.size(presses) === 0 do
-      current
-    else
-      current + presses.first * button
-    end
-    Enum.reduce(presses, {nil, current, memo}, fn times, {best, current, memo} ->
-      {n, memo} = configure_joltage(buttons, current, levels, memo)
-      if n === nil do
-        {best, current + button, memo}
-      else
-        result = min(n + times, best)
-        {result, current + button, memo}
-      end
-    end)
-    |> then(fn {best, _, memo} ->
-      {best, memo}
-    end)
   end
 
   defp increments(button, joltage) do
