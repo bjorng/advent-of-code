@@ -67,12 +67,13 @@ defmodule Day10 do
 #        IO.inspect({key, best})
 #        {best, memo}
       %{} ->
-#      	IO.inspect({button, current, levels})
-        case blurf(button, current, levels, buttons) do
+        #      	IO.inspect({button, current, levels})
+        next = next(buttons)
+        case blurf(button, current, levels, next) do
           true ->
             {nil, memo}
           false ->
-            min = min_presses(current, levels, buttons)
+            min = min_presses(current, levels, next)
             max = max_presses(button, current, levels, nil)
             presses = min..max//1
 
@@ -96,8 +97,11 @@ defmodule Day10 do
     end
   end
 
-  defp min_presses(current, levels, buttons) do
-    next = Enum.reduce(buttons, 0, &(&1 ||| &2))
+  defp next(buttons) do
+    Enum.reduce(buttons, 0, &(&1 ||| &2))
+  end
+
+  defp min_presses(current, levels, next) do
     do_min_presses(current, levels, next, 0)
   end
 
@@ -112,9 +116,8 @@ defmodule Day10 do
     end
   end
 
-  defp blurf(button, current, levels, buttons) do
-    next = Enum.reduce(buttons, 0, &(&1 ||| &2))
-    ds = blurf(button, current, levels, next, [])
+  defp blurf(button, current, levels, next) do
+    ds = do_blurf(button, current, levels, next, [])
     |> Enum.uniq
     case ds do
       [] -> false
@@ -123,14 +126,14 @@ defmodule Day10 do
     end
   end
 
-  defp blurf(_button, _current, 0, _next, largest), do: largest
-  defp blurf(button, current, levels, next, largest) do
+  defp do_blurf(_button, _current, 0, _next, largest), do: largest
+  defp do_blurf(button, current, levels, next, largest) do
     case {button &&& 0xff, current &&& 0xff, levels &&& 0xff, next &&& 0xff} do
       {1, value, limit, 0} ->
         largest = [limit - value | largest]
-        blurf(button >>> 8, current >>> 8, levels >>> 8, next >>> 8, largest);
+        do_blurf(button >>> 8, current >>> 8, levels >>> 8, next >>> 8, largest);
       {_, _, _, _} ->
-        blurf(button >>> 8, current >>> 8, levels >>> 8, next >>> 8, largest);
+        do_blurf(button >>> 8, current >>> 8, levels >>> 8, next >>> 8, largest);
     end
   end
 
