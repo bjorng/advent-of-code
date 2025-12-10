@@ -3,7 +3,7 @@ defmodule Day10Test do
   doctest Day10
 
   test "part 1 with example" do
-    assert Day10.part1(example()) == nil
+    assert Day10.part1(example()) == 7
   end
 
   test "part 1 with my input data" do
