@@ -105,9 +105,12 @@ defmodule Day10 do
     end
     Enum.reduce(presses, {nil, current, memo}, fn times, {best, current, memo} ->
       {n, memo} = configure_joltage(buttons, current, levels, memo)
-      n = if n === nil, do: nil, else: n + times
-      result = min(n, best)
-      {result, current + button, memo}
+      if n === nil do
+        {best, current + button, memo}
+      else
+        result = min(n + times, best)
+        {result, current + button, memo}
+      end
     end)
     |> then(fn {best, _, memo} ->
       {best, memo}
