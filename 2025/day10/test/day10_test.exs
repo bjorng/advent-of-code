@@ -7,11 +7,11 @@ defmodule Day10Test do
   end
 
   test "part 1 with my input data" do
-#    assert Day10.part1(input()) == nil
+    assert Day10.part1(input()) == 498
   end
 
   test "part 2 with example" do
-#    assert Day10.part2(example()) == nil
+    assert Day10.part2(example()) == nil
   end
 
   test "part 2 with my input data" do
