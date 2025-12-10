@@ -2,7 +2,10 @@ defmodule Day10 do
   import Bitwise
 
   def part1(input) do
-    parse(input)
+    machines = parse(input)
+    |> Enum.map(fn {lights, buttons, _} ->
+      {lights, buttons}
+    end)
   end
 
   def part2(input) do
