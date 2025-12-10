@@ -67,12 +67,17 @@ defmodule Day10 do
         {best, memo}
       %{} ->
 #      	IO.inspect({button, current, levels})
-        min = min_presses(current, levels, buttons)
-        max = max_presses(button, current, levels, nil)
-        presses = min..max//1
+        case blurf(button, current, levels, buttons) do
+          true ->
+            {nil, memo}
+          false ->
+            min = min_presses(current, levels, buttons)
+            max = max_presses(button, current, levels, nil)
+            presses = min..max//1
 
-        {best, memo} = press(presses, button, buttons, current, levels, memo)
-        {best, Map.put(memo, key, best)}
+            {best, memo} = press(presses, button, buttons, current, levels, memo)
+            {best, Map.put(memo, key, best)}
+        end
     end
   end
 
@@ -102,6 +107,28 @@ defmodule Day10 do
         do_min_presses(current >>> 8, levels >>> 8, next >>> 8, largest);
       {_, _, _} ->
         do_min_presses(current >>> 8, levels >>> 8, next >>> 8, largest);
+    end
+  end
+
+  defp blurf(button, current, levels, buttons) do
+    next = Enum.reduce(buttons, 0, &(&1 ||| &2))
+    ds = blurf(button, current, levels, next, [])
+    |> Enum.uniq
+    case ds do
+      [] -> false
+      [_] -> false
+      [_|_] -> true
+    end
+  end
+
+  defp blurf(_button, _current, 0, _next, largest), do: largest
+  defp blurf(button, current, levels, next, largest) do
+    case {button &&& 0xff, current &&& 0xff, levels &&& 0xff, next &&& 0xff} do
+      {1, value, limit, 0} ->
+        largest = [limit - value | largest]
+        blurf(button >>> 8, current >>> 8, levels >>> 8, next >>> 8, largest);
+      {_, _, _, _} ->
+        blurf(button >>> 8, current >>> 8, levels >>> 8, next >>> 8, largest);
     end
   end
 
