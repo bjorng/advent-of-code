@@ -25,7 +25,7 @@ defmodule Day10 do
         end
       end)
 
-      {buttons, joltage} = Enum.split(rest, length(rest) - 1)
+      {buttons, [joltage]} = Enum.split(rest, length(rest) - 1)
 
       buttons = Enum.map(buttons, fn button ->
         button
