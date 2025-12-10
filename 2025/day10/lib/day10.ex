@@ -52,14 +52,28 @@ defmodule Day10 do
   defp configure_joltage([], _max_presses, _current, _levels, memo) do
     {nil, memo}
   end
-  defp configure_joltage([button | buttons], max_presses, current, levels, memo) do
+  defp configure_joltage([button | buttons], _max_presses, current, levels, memo) do
     key = {current, [button | buttons]}
     case memo do
       %{^key => best} ->
         {best, memo}
       %{} ->
+        max_presses = 0..max_presses(button, current, levels, nil)//1
+	IO.inspect(max_presses)
         {best, memo} = press(max_presses, button, buttons, current, levels, memo)
         {best, Map.put(memo, key, best)}
+    end
+  end
+
+  defp max_presses(button, current, levels, smallest) do
+    case {button &&& 0xff, current &&& 0xff, levels &&& 0xff} do
+      {inc, value, limit} when inc + value > limit ->
+        -1
+      {0, _value, _limit} ->
+        max_presses(button >>> 8, current >>> 8, levels >>> 8, smallest)
+      {1, value, limit} ->
+        smallest = min(limit - value + 1, smallest)
+        max_presses(button >>> 8, current >>> 8, levels >>> 8, smallest)
     end
   end
 
