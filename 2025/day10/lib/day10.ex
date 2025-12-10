@@ -58,11 +58,10 @@ defmodule Day10 do
         {best, memo}
       %{} ->
 #      	IO.inspect({button, current, levels})
-        presses = 0..max_presses(button, current, levels, nil)
-#	IO.inspect {Integer.to_string(button, 16),
-#                    Integer.to_string(current, 16),
-#                    Integer.to_string(levels, 16)}
-#	IO.inspect presses, label: :presses
+        min = min_presses(current, levels, buttons)
+        max = max_presses(button, current, levels, nil)
+        presses = min..max//1
+
         {best, memo} = press(presses, button, buttons, current, levels, memo)
         {best, Map.put(memo, key, best)}
     end
@@ -76,13 +75,34 @@ defmodule Day10 do
       {0, _value, _limit} ->
         max_presses(button >>> 8, current >>> 8, levels >>> 8, smallest)
       {1, value, limit} ->
-        smallest = min(limit - value + 1, smallest)
+        smallest = min(limit - value, smallest)
         max_presses(button >>> 8, current >>> 8, levels >>> 8, smallest)
     end
   end
 
+  defp min_presses(current, levels, buttons) do
+    next = Enum.reduce(buttons, 0, &(&1 ||| &2))
+    do_min_presses(current, levels, next, 0)
+  end
+
+  defp do_min_presses(_current, 0, _next, largest), do: largest
+  defp do_min_presses(current, levels, next, largest) do
+    case {current &&& 0xff, levels &&& 0xff, next &&& 0xff} do
+      {value, limit, 0} ->
+        largest = max(limit - value, largest)
+        do_min_presses(current >>> 8, levels >>> 8, next >>> 8, largest);
+      {_, _, _} ->
+        do_min_presses(current >>> 8, levels >>> 8, next >>> 8, largest);
+    end
+  end
+
   defp press(presses, button, buttons, current, levels, memo) do
-#    IO.inspect({presses, button, current, levels})
+    #    IO.inspect({presses, button, current, levels})
+    current = if Range.size(presses) === 0 do
+      current
+    else
+      current + presses.first * button
+    end
     Enum.reduce(presses, {nil, current, memo}, fn times, {best, current, memo} ->
       {n, memo} = configure_joltage(buttons, current, levels, memo)
       n = if n === nil, do: nil, else: n + times
