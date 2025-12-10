@@ -54,6 +54,9 @@ defmodule Day10 do
       n = if n === nil, do: nil, else: n + times
       {min(n, best), current ||| button, memo}
     end)
+    |> then(fn {best, _, memo} ->
+      {best, memo}
+    end)
   end
 
   defp increments(button, acc) do
