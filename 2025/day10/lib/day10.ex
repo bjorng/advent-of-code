@@ -25,6 +25,9 @@ defmodule Day10 do
 
   def part2(input) do
     parse(input)
+    |> Enum.map(fn {_, buttons, joltage} ->
+      {buttons, joltage}
+    end)
   end
 
   defp parse(input) do
@@ -52,6 +55,11 @@ defmodule Day10 do
         |> Enum.map(&String.to_integer/1)
         |> Enum.reduce(0, &((1 <<< &1) ||| &2))
       end)
+
+      joltage = joltage
+      |>String.slice(1, String.length(joltage) - 2)
+      |> String.split(",")
+      |> Enum.map(&String.to_integer/1)
 
       {lights, buttons, joltage}
     end)
