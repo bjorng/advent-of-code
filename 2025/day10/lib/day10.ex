@@ -26,8 +26,24 @@ defmodule Day10 do
   def part2(input) do
     parse(input)
     |> Enum.map(fn {_, buttons, joltage} ->
-      {buttons, joltage}
+      joltage = Enum.reverse(joltage)
+      Enum.map(buttons, fn button ->
+        increments(button, 0)
+      end)
     end)
+  end
+
+  defp increments(button, acc) do
+    case button do
+      0 ->
+        acc
+      _ ->
+        acc = acc <<< 8
+        case button &&& 1 do
+          0 -> increments(button >>> 1, acc)
+          1 -> increments(button >>> 1, acc ||| 1)
+        end
+    end
   end
 
   defp parse(input) do
