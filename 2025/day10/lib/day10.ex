@@ -34,8 +34,11 @@ defmodule Day10 do
       buttons = Enum.map(buttons, fn button ->
         increments(button, 0)
       end)
-      configure_joltage(buttons, 0..max_presses, 0, joltage, %{})
+      {best, _} = configure_joltage(buttons, 0..max_presses, 0, joltage, %{})
+      best
     end)
+    |> IO.inspect
+    |> Enum.min
   end
 
   defp configure_joltage(_, _max_presses, levels, levels, memo) do
@@ -45,7 +48,14 @@ defmodule Day10 do
     {nil, memo}
   end
   defp configure_joltage([button | buttons], max_presses, current, levels, memo) do
-    press(max_presses, button, buttons, current, levels, memo)
+    key = {[button | buttons], current}
+    case memo do
+      %{^key => best} ->
+        {best, memo}
+      %{} ->
+        {best, memo} = press(max_presses, button, buttons, current, levels, memo)
+        {best, Map.put(memo, key, best)}
+    end
   end
 
   defp press(presses, button, buttons, current, levels, memo) do
