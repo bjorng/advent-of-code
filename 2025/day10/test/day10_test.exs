@@ -15,7 +15,7 @@ defmodule Day10Test do
   end
 
   test "part 2 with my input data" do
-#    assert Day10.part2(input()) == nil
+    assert Day10.part2(input()) == nil
   end
 
   defp example() do
