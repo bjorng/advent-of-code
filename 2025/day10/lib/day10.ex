@@ -26,6 +26,7 @@ defmodule Day10 do
   def part2(input) do
     parse(input)
     |> Enum.map(fn {_, buttons, joltage} ->
+      buttons = Enum.sort_by(buttons, &popcount/1, :desc)
       IO.inspect({buttons, joltage})
       levels = joltage
 #      |> Enum.reverse
@@ -43,6 +44,14 @@ defmodule Day10 do
     end)
     |> IO.inspect
     |> Enum.sum
+  end
+
+  defp popcount(0), do: 0
+  defp popcount(n) do
+    case n &&& 1 do
+      1 -> 1 + popcount(n >>> 1)
+      0 -> popcount(n >>> 1)
+    end
   end
 
   defp configure_joltage(_, levels, levels, memo) do
