@@ -27,7 +27,6 @@ defmodule Day10 do
     parse(input)
     |> Enum.map(fn {_, buttons, joltage} ->
       IO.inspect({buttons, joltage})
-      max_presses = Enum.max(joltage)
       levels = joltage
 #      |> Enum.reverse
       |> Enum.reduce(0, fn level, levels ->
@@ -39,34 +38,37 @@ defmodule Day10 do
         increments(button, joltage)
       end)
 
-      {best, _} = configure_joltage(buttons, 0..max_presses, 0, levels, %{})
+      {best, _} = configure_joltage(buttons, 0, levels, %{})
       best
     end)
     |> IO.inspect
     |> Enum.sum
   end
 
-  defp configure_joltage(_, _max_presses, levels, levels, memo) do
+  defp configure_joltage(_, levels, levels, memo) do
     {0, memo}
   end
-  defp configure_joltage([], _max_presses, _current, _levels, memo) do
+  defp configure_joltage([], _current, _levels, memo) do
     {nil, memo}
   end
-  defp configure_joltage([button | buttons], max_presses, current, levels, memo) do
+  defp configure_joltage([button | buttons], current, levels, memo) do
     key = (current <<< 8) ||| (length(buttons) + 1)
     case memo do
       %{^key => best} ->
         {best, memo}
       %{} ->
 #      	IO.inspect({button, current, levels})
-        presses = 0..max_presses(button, current, levels, 255)//1
-#	IO.inspect({presses, max_presses})
+        presses = 0..max_presses(button, current, levels, nil)
+#	IO.inspect {Integer.to_string(button, 16),
+#                    Integer.to_string(current, 16),
+#                    Integer.to_string(levels, 16)}
+#	IO.inspect presses, label: :presses
         {best, memo} = press(presses, button, buttons, current, levels, memo)
         {best, Map.put(memo, key, best)}
     end
   end
 
-  defp max_presses(_button, 0, _levels, smallest), do: smallest
+  defp max_presses(_button, _current, 0, smallest), do: smallest
   defp max_presses(button, current, levels, smallest) do
     case {button &&& 0xff, current &&& 0xff, levels &&& 0xff} do
       {inc, value, limit} when inc + value > limit ->
@@ -82,7 +84,7 @@ defmodule Day10 do
   defp press(presses, button, buttons, current, levels, memo) do
 #    IO.inspect({presses, button, current, levels})
     Enum.reduce(presses, {nil, current, memo}, fn times, {best, current, memo} ->
-      {n, memo} = configure_joltage(buttons, presses, current, levels, memo)
+      {n, memo} = configure_joltage(buttons, current, levels, memo)
       n = if n === nil, do: nil, else: n + times
       result = min(n, best)
       {result, current + button, memo}
