@@ -53,7 +53,7 @@ defmodule Day10 do
     {nil, memo}
   end
   defp configure_joltage([button | buttons], max_presses, current, levels, memo) do
-    key = {current, [button | buttons]}
+    key = (current <<< 8) ||| (length(buttons) + 1)
     case memo do
       %{^key => best} ->
         {best, memo}
