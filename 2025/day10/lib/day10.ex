@@ -26,19 +26,24 @@ defmodule Day10 do
   def part2(input) do
     parse(input)
     |> Enum.map(fn {_, buttons, joltage} ->
+      IO.inspect({buttons, joltage})
       max_presses = Enum.max(joltage)
-      joltage = Enum.reduce(joltage, 0, fn level, levels ->
+      levels = joltage
+#      |> Enum.reverse
+      |> Enum.reduce(0, fn level, levels ->
         (levels <<< 8) ||| level
       end)
 
       buttons = Enum.map(buttons, fn button ->
-        increments(button, 0)
+#        IO.inspect button, label: :button
+        increments(button, joltage)
       end)
-      {best, _} = configure_joltage(buttons, 0..max_presses, 0, joltage, %{})
+
+      {best, _} = configure_joltage(buttons, 0..max_presses, 0, levels, %{})
       best
     end)
     |> IO.inspect
-    |> Enum.min
+    |> Enum.sum
   end
 
   defp configure_joltage(_, _max_presses, levels, levels, memo) do
@@ -48,7 +53,7 @@ defmodule Day10 do
     {nil, memo}
   end
   defp configure_joltage([button | buttons], max_presses, current, levels, memo) do
-    key = {[button | buttons], current}
+    key = {current, [button | buttons]}
     case memo do
       %{^key => best} ->
         {best, memo}
@@ -59,27 +64,27 @@ defmodule Day10 do
   end
 
   defp press(presses, button, buttons, current, levels, memo) do
+#    IO.inspect({presses, button, current, levels})
     Enum.reduce(presses, {nil, current, memo}, fn times, {best, current, memo} ->
       {n, memo} = configure_joltage(buttons, presses, current, levels, memo)
       n = if n === nil, do: nil, else: n + times
-      {min(n, best), current ||| button, memo}
+      result = min(n, best)
+      {result, current + button, memo}
     end)
     |> then(fn {best, _, memo} ->
       {best, memo}
     end)
   end
 
-  defp increments(button, acc) do
-    case button do
-      0 ->
-        acc
-      _ ->
-        acc = acc <<< 8
-        case button &&& 1 do
-          0 -> increments(button >>> 1, acc)
-          1 -> increments(button >>> 1, acc ||| 1)
-        end
-    end
+  defp increments(button, joltage) do
+    Enum.reduce(joltage, {button, 0}, fn _, {button, acc} ->
+      acc = acc <<< 8
+      case button &&& 1 do
+        0 -> {button >>> 1, acc}
+        1 -> {button >>> 1, acc ||| 1}
+      end
+    end)
+    |> then(fn {_, button} -> button end)
   end
 
   defp parse(input) do
