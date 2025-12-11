@@ -41,6 +41,7 @@ defmodule Day10 do
 
       {best, _} = configure_joltage(buttons, 0, levels, %{})
       best
+      |> IO.inspect(label: :presses)
     end)
     |> IO.inspect
     |> Enum.sum
