@@ -53,7 +53,7 @@ defmodule Day10 do
         increments(button, joltage)
       end)
 
-      configure_joltage(buttons, 0, levels)
+      configure_joltage(buttons, levels)
       |> IO.inspect(label: :presses)
     end)
     |> IO.inspect
@@ -68,38 +68,37 @@ defmodule Day10 do
     end
   end
 
-  defp configure_joltage(_, levels, levels) do
+  defp configure_joltage(_, 0) do
     0
   end
-  defp configure_joltage([], _current, _levels) do
+  defp configure_joltage([], _current) do
     nil
   end
-  defp configure_joltage([button | buttons], current, levels) do
+  defp configure_joltage([button | buttons], current) do
     next = next(buttons)
-    diffs = levels - current
-    case impossible?(button, diffs, next) do
+    case impossible?(button, current, next) do
       true ->
         nil
       false ->
-        presses = presses(button, diffs, next)
+        presses = presses(button, current, next)
         case Range.size(presses) do
           0 ->
             nil
           _ ->
-            press(presses, button, buttons, current, levels)
+            press(presses, button, buttons, current)
         end
     end
   end
 
-  defp press(presses, button, buttons, current, levels) do
-    current = current + presses.first * button
+  defp press(presses, button, buttons, current) do
+    current = current - presses.first * button
     Enum.reduce(presses, {nil, current}, fn times, {best, current} ->
-      case configure_joltage(buttons, current, levels) do
+      case configure_joltage(buttons, current) do
         nil ->
-          {best, current + button}
+          {best, current - button}
         n ->
           result = min(n + times, best)
-          {result, current + button}
+          {result, current - button}
       end
     end)
     |> then(fn {best, _} ->
