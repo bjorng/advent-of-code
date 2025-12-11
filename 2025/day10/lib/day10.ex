@@ -63,7 +63,7 @@ defmodule Day10 do
   end
   defp configure_joltage([button | buttons], current, levels, memo) do
     next = next(buttons)
-    case blurf(button, current, levels, next) do
+    case impossible?(button, current, levels, next) do
       true ->
         {nil, memo}
       false ->
@@ -93,6 +93,27 @@ defmodule Day10 do
     end)
   end
 
+  defp impossible?(button, current, levels, next) do
+    do_impossible?(button, levels - current, next, [])
+  end
+
+  defp do_impossible?(0, 0, _next, largest) do
+    case Enum.uniq(largest) do
+      [] -> false
+      [_] -> false
+      [_|_] -> true
+    end
+  end
+  defp do_impossible?(button, diffs, next, largest) do
+    case {button &&& 0xff, diffs &&& 0xff, next &&& 0xff} do
+      {1, diff, 0} ->
+        largest = [diff | largest]
+        do_impossible?(button >>> 8, diffs >>> 8, next >>> 8, largest)
+      {_, _, _} ->
+        do_impossible?(button >>> 8, diffs >>> 8, next >>> 8, largest)
+    end
+  end
+
   defp presses(button, current, levels, next) do
     diffs = levels - current
     do_min_presses(diffs, next, 0) ..
@@ -104,9 +125,9 @@ defmodule Day10 do
     case {diffs &&& 0xff, next &&& 0xff} do
       {diff, 0} ->
         largest = max(diff, largest)
-        do_min_presses(diffs >>> 8, next >>> 8, largest);
+        do_min_presses(diffs >>> 8, next >>> 8, largest)
       {_, _} ->
-        do_min_presses(diffs >>> 8, next >>> 8, largest);
+        do_min_presses(diffs >>> 8, next >>> 8, largest)
     end
   end
 
@@ -123,27 +144,6 @@ defmodule Day10 do
 
   defp next(buttons) do
     Enum.reduce(buttons, 0, &(&1 ||| &2))
-  end
-
-  defp blurf(button, current, levels, next) do
-    ds = do_blurf(button, current, levels, next, [])
-    |> Enum.uniq
-    case ds do
-      [] -> false
-      [_] -> false
-      [_|_] -> true
-    end
-  end
-
-  defp do_blurf(_button, _current, 0, _next, largest), do: largest
-  defp do_blurf(button, current, levels, next, largest) do
-    case {button &&& 0xff, current &&& 0xff, levels &&& 0xff, next &&& 0xff} do
-      {1, value, limit, 0} ->
-        largest = [limit - value | largest]
-        do_blurf(button >>> 8, current >>> 8, levels >>> 8, next >>> 8, largest);
-      {_, _, _, _} ->
-        do_blurf(button >>> 8, current >>> 8, levels >>> 8, next >>> 8, largest);
-    end
   end
 
   defp increments(button, joltage) do
