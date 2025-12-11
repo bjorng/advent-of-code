@@ -29,15 +29,27 @@ defmodule Day10 do
       buttons = Enum.sort_by(buttons, &popcount/1, :desc)
       IO.inspect({buttons, joltage})
       levels = joltage
-#      |> Enum.reverse
       |> Enum.reduce(0, fn level, levels ->
         (levels <<< 8) ||| level
       end)
 
       buttons = Enum.map(buttons, fn button ->
-#        IO.inspect button, label: :button
         increments(button, joltage)
       end)
+
+      all = increments((1 <<< length(joltage)) - 1, joltage)
+
+      buttons = buttons
+      |> Enum.reverse
+      |> Enum.map_reduce(0, fn elem, acc ->
+        case acc do
+          nil -> {{elem, nil}, nil}
+          ^all -> {{elem, acc}, nil}
+          _ -> {{elem, acc}, acc ||| elem}
+        end
+      end)
+      |> elem(0)
+      |> Enum.reverse
 
       configure_joltage(buttons, levels)
       |> IO.inspect(label: :presses)
@@ -60,18 +72,15 @@ defmodule Day10 do
   defp configure_joltage([], _current) do
     nil
   end
-  defp configure_joltage([button | buttons], current) do
-    next = next(buttons)
+  defp configure_joltage([{button, next} | buttons], current) do
     case impossible?(button, current, next) do
       true ->
         nil
       false ->
         presses = presses(button, current, next)
         case Range.size(presses) do
-          0 ->
-            nil
-          _ ->
-            press(presses, button, buttons, current)
+          0 -> nil
+          _ -> press(presses, button, buttons, current)
         end
     end
   end
@@ -92,6 +101,7 @@ defmodule Day10 do
     end)
   end
 
+  defp impossible?(_button, _diffs, nil), do: false
   defp impossible?(button, diffs, next) do
     do_impossible?(button, diffs, next, nil)
   end
@@ -111,8 +121,8 @@ defmodule Day10 do
   end
 
   defp presses(button, diffs, next) do
-    do_min_presses(diffs, next, 0) ..
-    do_max_presses(button, diffs, nil) // 1
+    min = if next === nil, do: 0, else: do_min_presses(diffs, next, 0)
+    min .. do_max_presses(button, diffs, nil) // 1
   end
 
   defp do_min_presses(0, 0, largest), do: largest
@@ -135,10 +145,6 @@ defmodule Day10 do
         smallest = min(diff, smallest)
         do_max_presses(button >>> 8, diffs >>> 8, smallest)
     end
-  end
-
-  defp next(buttons) do
-    Enum.reduce(buttons, 0, &(&1 ||| &2))
   end
 
   defp increments(button, joltage) do
