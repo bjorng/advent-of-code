@@ -94,23 +94,20 @@ defmodule Day10 do
   end
 
   defp impossible?(button, diffs, next) do
-    do_impossible?(button, diffs, next, [])
+    do_impossible?(button, diffs, next, nil)
   end
 
-  defp do_impossible?(0, 0, _next, largest) do
-    case Enum.uniq(largest) do
-      [] -> false
-      [_] -> false
-      [_|_] -> true
-    end
-  end
-  defp do_impossible?(button, diffs, next, largest) do
+  defp do_impossible?(0, 0, _next, _diff), do: false
+  defp do_impossible?(button, diffs, next, prev_diff) do
     case {button &&& 0xff, diffs &&& 0xff, next &&& 0xff} do
       {1, diff, 0} ->
-        largest = [diff | largest]
-        do_impossible?(button >>> 8, diffs >>> 8, next >>> 8, largest)
+        if diff === prev_diff or prev_diff === nil do
+          do_impossible?(button >>> 8, diffs >>> 8, next >>> 8, prev_diff)
+        else
+          true
+        end
       {_, _, _} ->
-        do_impossible?(button >>> 8, diffs >>> 8, next >>> 8, largest)
+        do_impossible?(button >>> 8, diffs >>> 8, next >>> 8, prev_diff)
     end
   end
 
