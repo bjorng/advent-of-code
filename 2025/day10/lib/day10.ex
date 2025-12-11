@@ -96,6 +96,21 @@ defmodule Day10 do
     end)
   end
 
+  defp min_presses(current, levels, next) do
+    do_min_presses(levels - current, next, 0)
+  end
+
+  defp do_min_presses(0, 0, largest), do: largest
+  defp do_min_presses(diffs, next, largest) do
+    case {diffs &&& 0xff, next &&& 0xff} do
+      {diff, 0} ->
+        largest = max(diff, largest)
+        do_min_presses(diffs >>> 8, next >>> 8, largest);
+      {_, _} ->
+        do_min_presses(diffs >>> 8, next >>> 8, largest);
+    end
+  end
+
   defp max_presses(button, current, levels) do
     do_max_presses(button, levels - current, nil)
   end
@@ -113,21 +128,6 @@ defmodule Day10 do
 
   defp next(buttons) do
     Enum.reduce(buttons, 0, &(&1 ||| &2))
-  end
-
-  defp min_presses(current, levels, next) do
-    do_min_presses(current, levels, next, 0)
-  end
-
-  defp do_min_presses(_current, 0, _next, largest), do: largest
-  defp do_min_presses(current, levels, next, largest) do
-    case {current &&& 0xff, levels &&& 0xff, next &&& 0xff} do
-      {value, limit, 0} ->
-        largest = max(limit - value, largest)
-        do_min_presses(current >>> 8, levels >>> 8, next >>> 8, largest);
-      {_, _, _} ->
-        do_min_presses(current >>> 8, levels >>> 8, next >>> 8, largest);
-    end
   end
 
   defp blurf(button, current, levels, next) do
