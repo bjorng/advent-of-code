@@ -68,7 +68,7 @@ defmodule Day10 do
         {nil, memo}
       false ->
         min = min_presses(current, levels, next)
-        max = max_presses(button, current, levels, nil)
+        max = max_presses(button, current, levels)
         presses = min..max//1
 
         press(presses, button, buttons, current, levels, memo)
@@ -96,16 +96,18 @@ defmodule Day10 do
     end)
   end
 
-  defp max_presses(_button, _current, 0, smallest), do: smallest
-  defp max_presses(button, current, levels, smallest) do
-    case {button &&& 0xff, current &&& 0xff, levels &&& 0xff} do
-      {inc, value, limit} when inc + value > limit ->
-        0
-      {0, _value, _limit} ->
-        max_presses(button >>> 8, current >>> 8, levels >>> 8, smallest)
-      {1, value, limit} ->
-        smallest = min(limit - value, smallest)
-        max_presses(button >>> 8, current >>> 8, levels >>> 8, smallest)
+  defp max_presses(button, current, levels) do
+    do_max_presses(button, levels - current, nil)
+  end
+
+  defp do_max_presses(0, 0, smallest), do: smallest
+  defp do_max_presses(button, diffs, smallest) do
+    case {button &&& 0xff, diffs &&& 0xff} do
+      {0, _diff} ->
+        do_max_presses(button >>> 8, diffs >>> 8, smallest)
+      {1, diff} ->
+        smallest = min(diff, smallest)
+        do_max_presses(button >>> 8, diffs >>> 8, smallest)
     end
   end
 
