@@ -39,8 +39,7 @@ defmodule Day10 do
         increments(button, joltage)
       end)
 
-      {best, _} = configure_joltage(buttons, 0, levels, %{})
-      best
+      configure_joltage(buttons, 0, levels)
       |> IO.inspect(label: :presses)
     end)
     |> IO.inspect
@@ -55,42 +54,42 @@ defmodule Day10 do
     end
   end
 
-  defp configure_joltage(_, levels, levels, memo) do
-    {0, memo}
+  defp configure_joltage(_, levels, levels) do
+    0
   end
-  defp configure_joltage([], _current, _levels, memo) do
-    {nil, memo}
+  defp configure_joltage([], _current, _levels) do
+    nil
   end
-  defp configure_joltage([button | buttons], current, levels, memo) do
+  defp configure_joltage([button | buttons], current, levels) do
     next = next(buttons)
     diffs = levels - current
     case impossible?(button, diffs, next) do
       true ->
-        {nil, memo}
+        nil
       false ->
         presses = presses(button, diffs, next)
         case Range.size(presses) do
           0 ->
-            {nil, memo}
+            nil
           _ ->
-            press(presses, button, buttons, current, levels, memo)
+            press(presses, button, buttons, current, levels)
         end
     end
   end
 
-  defp press(presses, button, buttons, current, levels, memo) do
+  defp press(presses, button, buttons, current, levels) do
     current = current + presses.first * button
-    Enum.reduce(presses, {nil, current, memo}, fn times, {best, current, memo} ->
-      {n, memo} = configure_joltage(buttons, current, levels, memo)
-      if n === nil do
-        {best, current + button, memo}
-      else
-        result = min(n + times, best)
-        {result, current + button, memo}
+    Enum.reduce(presses, {nil, current}, fn times, {best, current} ->
+      case configure_joltage(buttons, current, levels) do
+        nil ->
+          {best, current + button}
+        n ->
+          result = min(n + times, best)
+          {result, current + button}
       end
     end)
-    |> then(fn {best, _, memo} ->
-      {best, memo}
+    |> then(fn {best, _} ->
+      best
     end)
   end
 
