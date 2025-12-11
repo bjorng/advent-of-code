@@ -26,7 +26,7 @@ defmodule Day10 do
   def part2(input) do
     parse(input)
     |> Enum.map(fn {_, buttons, joltage} ->
-#      buttons = Enum.sort_by(buttons, &popcount/1, :desc)
+      buttons = Enum.sort_by(buttons, &popcount/1, :desc)
       IO.inspect({buttons, joltage})
       levels = joltage
 #      |> Enum.reverse
@@ -68,12 +68,6 @@ defmodule Day10 do
         nil
       false ->
         presses = presses(button, diffs, next)
-        case length(buttons) do
-          9 ->
-            IO.inspect(presses)
-          _ ->
-            nil
-        end
         case Range.size(presses) do
           0 ->
             nil
@@ -86,21 +80,13 @@ defmodule Day10 do
   defp press(presses, button, buttons, current, levels) do
     current = current + presses.first * button
     Enum.reduce(presses, {nil, current}, fn times, {best, current} ->
-      res = case configure_joltage(buttons, current, levels) do
-              nil ->
-                {best, current + button}
-              n ->
-                result = min(n + times, best)
-                {result, current + button}
-            end
-      case length(buttons) do
-        9 ->
-          {n, current} = res
-          IO.inspect({n, Integer.to_string(current, 16), times})
-        _ ->
-          nil
+      case configure_joltage(buttons, current, levels) do
+        nil ->
+          {best, current + button}
+        n ->
+          result = min(n + times, best)
+          {result, current + button}
       end
-      res
     end)
     |> then(fn {best, _} ->
       best
