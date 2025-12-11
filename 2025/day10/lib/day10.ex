@@ -67,21 +67,18 @@ defmodule Day10 do
       true ->
         {nil, memo}
       false ->
-        min = min_presses(current, levels, next)
-        max = max_presses(button, current, levels)
-        presses = min..max//1
-
-        press(presses, button, buttons, current, levels, memo)
+        presses = presses(button, current, levels, next)
+        case Range.size(presses) do
+          0 ->
+            {nil, memo}
+          _ ->
+            press(presses, button, buttons, current, levels, memo)
+        end
     end
   end
 
   defp press(presses, button, buttons, current, levels, memo) do
-    #    IO.inspect({presses, button, current, levels})
-    current = if Range.size(presses) === 0 do
-      current
-    else
-      current + presses.first * button
-    end
+    current = current + presses.first * button
     Enum.reduce(presses, {nil, current, memo}, fn times, {best, current, memo} ->
       {n, memo} = configure_joltage(buttons, current, levels, memo)
       if n === nil do
@@ -96,8 +93,10 @@ defmodule Day10 do
     end)
   end
 
-  defp min_presses(current, levels, next) do
-    do_min_presses(levels - current, next, 0)
+  defp presses(button, current, levels, next) do
+    diffs = levels - current
+    do_min_presses(diffs, next, 0) ..
+    do_max_presses(button, diffs, nil) // 1
   end
 
   defp do_min_presses(0, 0, largest), do: largest
@@ -109,10 +108,6 @@ defmodule Day10 do
       {_, _} ->
         do_min_presses(diffs >>> 8, next >>> 8, largest);
     end
-  end
-
-  defp max_presses(button, current, levels) do
-    do_max_presses(button, levels - current, nil)
   end
 
   defp do_max_presses(0, 0, smallest), do: smallest
