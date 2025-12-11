@@ -26,22 +26,8 @@ defmodule Day10 do
   def part2(input) do
     parse(input)
     |> Enum.map(fn {_, buttons, joltage} ->
-      lowest_index = joltage
-      |> Enum.with_index
-      |> Enum.sort
-      |> then(fn [{_, index} | _] ->
-        length(joltage) - index - 1
-      end)
-#      |> IO.inspect
-
-      buttons = Enum.sort_by(buttons, fn elem ->
-        {((elem >>> lowest_index) &&& 1), popcount(elem)}
-      end, :desc)
+      buttons = Enum.sort_by(buttons, &popcount/1, :desc)
       IO.inspect({buttons, joltage})
-#      Enum.each(buttons, fn button ->
-#        IO.puts Integer.to_string(button ||| (1 <<< 16), 2)
-#      end)
-
       levels = joltage
 #      |> Enum.reverse
       |> Enum.reduce(0, fn level, levels ->
