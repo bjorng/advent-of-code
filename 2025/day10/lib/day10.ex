@@ -63,11 +63,12 @@ defmodule Day10 do
   end
   defp configure_joltage([button | buttons], current, levels, memo) do
     next = next(buttons)
-    case impossible?(button, current, levels, next) do
+    diffs = levels - current
+    case impossible?(button, diffs, next) do
       true ->
         {nil, memo}
       false ->
-        presses = presses(button, current, levels, next)
+        presses = presses(button, diffs, next)
         case Range.size(presses) do
           0 ->
             {nil, memo}
@@ -93,8 +94,8 @@ defmodule Day10 do
     end)
   end
 
-  defp impossible?(button, current, levels, next) do
-    do_impossible?(button, levels - current, next, [])
+  defp impossible?(button, diffs, next) do
+    do_impossible?(button, diffs, next, [])
   end
 
   defp do_impossible?(0, 0, _next, largest) do
@@ -114,8 +115,7 @@ defmodule Day10 do
     end
   end
 
-  defp presses(button, current, levels, next) do
-    diffs = levels - current
+  defp presses(button, diffs, next) do
     do_min_presses(diffs, next, 0) ..
     do_max_presses(button, diffs, nil) // 1
   end
