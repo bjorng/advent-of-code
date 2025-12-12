@@ -15,7 +15,7 @@ defmodule Day10Test do
   end
 
   test "part 2 with example 2" do
-#    assert Day10.part2(example2()) == 195
+    assert Day10.part2(example2()) == 195
   end
 
   test "part 2 with my input data" do

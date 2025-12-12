@@ -38,7 +38,7 @@ defmodule Day10 do
   end
 
   defp one_machine(buttons, joltage) do
-    _buttons = Enum.sort_by(buttons, &popcount/1, :desc)
+    buttons = Enum.sort_by(buttons, &popcount/1, :desc)
 #    IO.inspect({buttons, joltage})
     levels = joltage
     |> Enum.reduce(0, fn level, levels ->
@@ -89,9 +89,19 @@ defmodule Day10 do
             if buttons === [] do
               {q, seen}
             else
-              entry = {steps + 1, num_buttons, current, buttons}
-              q = :gb_sets.add(entry, q)
-              {q, seen}
+              next = Enum.reduce(buttons, 0, &(&1 ||| &2))
+              IO.puts("#{Integer.to_string(button, 16)}")
+              IO.puts("#{Integer.to_string(current, 16)}")
+              IO.puts("#{Integer.to_string(next, 16)}")
+              IO.puts ""
+              if impossible?(button, current, next) do
+                IO.inspect(current)
+                {q, seen}
+              else
+                entry = {steps + 1, num_buttons, current, buttons}
+                q = :gb_sets.add(entry, q)
+                {q, seen}
+              end
             end
         end
         |> blurf
