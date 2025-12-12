@@ -25,12 +25,12 @@ defmodule Day10 do
 
   def part2(input) do
     parse(input)
-    |> Task.async_stream(fn {_, buttons, joltage} ->
+    |> Enum.map(fn {_, buttons, joltage} ->
       {time, presses} = :timer.tc(fn -> one_machine(buttons, joltage) end)
       time = :erlang.float_to_binary(time / 1_000_000, decimals: 2)
       {presses, time, {buttons, joltage}}
-    end, timeout: :infinity, ordered: false)
-    |> Enum.sum_by(fn {:ok, {presses, time, input}} ->
+    end)
+    |> Enum.sum_by(fn {presses, time, input} ->
       IO.inspect(input)
       IO.puts("#{presses} presses in #{time} seconds")
       presses
@@ -38,7 +38,7 @@ defmodule Day10 do
   end
 
   defp one_machine(buttons, joltage) do
-    buttons = Enum.sort_by(buttons, &popcount/1, :desc)
+    _buttons = Enum.sort_by(buttons, &popcount/1, :desc)
 #    IO.inspect({buttons, joltage})
     levels = joltage
     |> Enum.reduce(0, fn level, levels ->
@@ -49,21 +49,48 @@ defmodule Day10 do
       increments(button, joltage)
     end)
 
-    all = increments((1 <<< length(joltage)) - 1, joltage)
+    IO.inspect({buttons, joltage})
+    seen = MapSet.new
+    q = :gb_sets.singleton({0, levels, buttons})
+    result = blurf({q, seen})
+    IO.inspect result, label: :result
+    result
+#    configure_joltage(buttons, levels)
+  end
 
-    buttons = buttons
-    |> Enum.reverse
-    |> Enum.map_reduce(0, fn elem, acc ->
-      case acc do
-        nil -> {{elem, nil}, nil}
-        ^all -> {{elem, acc}, nil}
-        _ -> {{elem, acc}, acc ||| elem}
-      end
-    end)
-    |> elem(0)
-    |> Enum.reverse
-
-    configure_joltage(buttons, levels)
+  defp blurf({q, seen}) do
+    {{steps, current, buttons}, q} = :gb_sets.take_smallest(q)
+    IO.inspect {steps, :gb_sets.size(q)}, label: :steps
+    case current do
+      0 ->
+        steps
+      _ ->
+        case buttons do
+          [] ->
+            {q, seen}
+          [button | buttons] ->
+            case do_max_presses(button, current, nil) do
+              nil ->
+                {q, seen}
+              max ->
+                Enum.reduce(0..max//1, {{q, seen}, current},
+                  fn s, {{q, seen}, current} ->
+                    case MapSet.member?(seen, current) do
+                      true ->
+                        {{q, seen}, current}
+                      false ->
+#                        seen = MapSet.put(seen, current)
+                        entry = {steps + s, current, buttons}
+                        q = :gb_sets.add(entry, q)
+                        current = current - button
+                        {{q, seen}, current}
+                    end
+                  end)
+                  |> elem(0)
+            end
+        end
+        |> blurf
+    end
   end
 
   defp popcount(0), do: 0
