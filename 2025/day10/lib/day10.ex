@@ -25,19 +25,21 @@ defmodule Day10 do
 
   def part2(input) do
     parse(input)
-    |> Enum.map(fn {_, buttons, joltage} ->
+    |> Task.async_stream(fn {_, buttons, joltage} ->
       {time, presses} = :timer.tc(fn -> one_machine(buttons, joltage) end)
       time = :erlang.float_to_binary(time / 1_000_000, decimals: 2)
+      {presses, time, {buttons, joltage}}
+    end, timeout: :infinity, ordered: false)
+    |> Enum.sum_by(fn {:ok, {presses, time, input}} ->
+      IO.inspect(input)
       IO.puts("#{presses} presses in #{time} seconds")
       presses
     end)
-    |> IO.inspect
-    |> Enum.sum
   end
 
   defp one_machine(buttons, joltage) do
     buttons = Enum.sort_by(buttons, &popcount/1, :desc)
-    IO.inspect({buttons, joltage})
+#    IO.inspect({buttons, joltage})
     levels = joltage
     |> Enum.reduce(0, fn level, levels ->
       (levels <<< 8) ||| level
