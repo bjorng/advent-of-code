@@ -51,7 +51,7 @@ defmodule Day10 do
 
     IO.inspect({buttons, joltage})
     seen = MapSet.new
-    q = :gb_sets.singleton({0, levels, buttons})
+    q = :gb_sets.singleton({0, length(buttons), levels, buttons})
     result = blurf({q, seen})
     IO.inspect result, label: :result
     result
@@ -59,31 +59,39 @@ defmodule Day10 do
   end
 
   defp blurf({q, seen}) do
-    {{steps, current, buttons}, q} = :gb_sets.take_smallest(q)
-#    IO.inspect {steps, :gb_sets.size(q)}, label: :steps
+    {{steps, _, current, buttons}, q} = :gb_sets.take_smallest(q)
+    if Process.get(:steps) !== steps and not :gb_sets.is_empty(q) do
+      Process.put(:steps, steps)
+      {largest, len, _, _} = :gb_sets.largest(q)
+      IO.inspect {steps, current, :gb_sets.size(q), {largest, len}}, label: :steps
+    end
     case current do
       0 ->
         steps
       _ ->
-        case buttons do
-          [] ->
+        [button | buttons] = buttons
+        num_buttons = length(buttons)
+        q = if buttons === [] do
+          q
+        else
+          entry = {steps, num_buttons, current, buttons}
+          :gb_sets.add(entry, q)
+        end
+        case do_max_presses(button, current, nil) do
+          nil ->
             {q, seen}
-          [button | buttons] ->
-            entry = {steps, current, buttons}
+          0 ->
+            {q, seen}
+          max when max >= 1 ->
+            current = current - button
+            entry = {steps + 1, num_buttons + 1, current, [button | buttons]}
             q = :gb_sets.add(entry, q)
-            case do_max_presses(button, current, nil) do
-              nil ->
-                {q, seen}
-              0 ->
-                {q, seen}
-              max when max >= 1 ->
-                current = current - button
-                entry = {steps + 1, current, [button | buttons]}
-                q = :gb_sets.add(entry, q)
-                entry = {steps + 1, current, buttons}
-                q = :gb_sets.add(entry, q)
-                current = current - button
-                {q, seen}
+            if buttons === [] do
+              {q, seen}
+            else
+              entry = {steps + 1, num_buttons, current, buttons}
+              q = :gb_sets.add(entry, q)
+              {q, seen}
             end
         end
         |> blurf
