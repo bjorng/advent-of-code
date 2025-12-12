@@ -60,7 +60,7 @@ defmodule Day10 do
 
   defp blurf({q, seen}) do
     {{steps, current, buttons}, q} = :gb_sets.take_smallest(q)
-    IO.inspect {steps, :gb_sets.size(q)}, label: :steps
+#    IO.inspect {steps, :gb_sets.size(q)}, label: :steps
     case current do
       0 ->
         steps
@@ -69,24 +69,21 @@ defmodule Day10 do
           [] ->
             {q, seen}
           [button | buttons] ->
+            entry = {steps, current, buttons}
+            q = :gb_sets.add(entry, q)
             case do_max_presses(button, current, nil) do
               nil ->
                 {q, seen}
-              max ->
-                Enum.reduce(0..max//1, {{q, seen}, current},
-                  fn s, {{q, seen}, current} ->
-                    case MapSet.member?(seen, current) do
-                      true ->
-                        {{q, seen}, current}
-                      false ->
-#                        seen = MapSet.put(seen, current)
-                        entry = {steps + s, current, buttons}
-                        q = :gb_sets.add(entry, q)
-                        current = current - button
-                        {{q, seen}, current}
-                    end
-                  end)
-                  |> elem(0)
+              0 ->
+                {q, seen}
+              max when max >= 1 ->
+                current = current - button
+                entry = {steps + 1, current, [button | buttons]}
+                q = :gb_sets.add(entry, q)
+                entry = {steps + 1, current, buttons}
+                q = :gb_sets.add(entry, q)
+                current = current - button
+                {q, seen}
             end
         end
         |> blurf
