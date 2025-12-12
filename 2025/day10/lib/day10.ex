@@ -114,14 +114,20 @@ defmodule Day10 do
 
   defp do_impossible?(0, 0, _next, _diff), do: false
   defp do_impossible?(button, diffs, next, prev_diff) do
-    case {button &&& 0xff, diffs &&& 0xff, next &&& 0xff} do
-      {1, diff, 0} ->
-        if diff === prev_diff or prev_diff === nil do
-          do_impossible?(button >>> 8, diffs >>> 8, next >>> 8, prev_diff)
-        else
-          true
+    case next &&& 0xff do
+      0 ->
+        case button &&& 0xff do
+          1 ->
+            diff = diffs &&& 0xff
+            if diff === prev_diff or prev_diff === nil do
+              do_impossible?(button >>> 8, diffs >>> 8, next >>> 8, prev_diff)
+            else
+              true
+            end
+          0 ->
+            do_impossible?(button >>> 8, diffs >>> 8, next >>> 8, prev_diff)
         end
-      {_, _, _} ->
+      1 ->
         do_impossible?(button >>> 8, diffs >>> 8, next >>> 8, prev_diff)
     end
   end
@@ -133,21 +139,23 @@ defmodule Day10 do
 
   defp do_min_presses(0, 0, largest), do: largest
   defp do_min_presses(diffs, next, largest) do
-    case {diffs &&& 0xff, next &&& 0xff} do
-      {diff, 0} ->
+    case next &&& 0xff do
+      0 ->
+        diff = diffs &&& 0xff
         largest = max(diff, largest)
         do_min_presses(diffs >>> 8, next >>> 8, largest)
-      {_, _} ->
+      1 ->
         do_min_presses(diffs >>> 8, next >>> 8, largest)
     end
   end
 
   defp do_max_presses(0, 0, smallest), do: smallest
   defp do_max_presses(button, diffs, smallest) do
-    case {button &&& 0xff, diffs &&& 0xff} do
-      {0, _diff} ->
+    case button &&& 0xff do
+      0 ->
         do_max_presses(button >>> 8, diffs >>> 8, smallest)
-      {1, diff} ->
+      1 ->
+        diff = diffs &&& 0xff
         smallest = min(diff, smallest)
         do_max_presses(button >>> 8, diffs >>> 8, smallest)
     end
