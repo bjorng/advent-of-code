@@ -26,36 +26,42 @@ defmodule Day10 do
   def part2(input) do
     parse(input)
     |> Enum.map(fn {_, buttons, joltage} ->
-      buttons = Enum.sort_by(buttons, &popcount/1, :desc)
-      IO.inspect({buttons, joltage})
-      levels = joltage
-      |> Enum.reduce(0, fn level, levels ->
-        (levels <<< 8) ||| level
-      end)
-
-      buttons = Enum.map(buttons, fn button ->
-        increments(button, joltage)
-      end)
-
-      all = increments((1 <<< length(joltage)) - 1, joltage)
-
-      buttons = buttons
-      |> Enum.reverse
-      |> Enum.map_reduce(0, fn elem, acc ->
-        case acc do
-          nil -> {{elem, nil}, nil}
-          ^all -> {{elem, acc}, nil}
-          _ -> {{elem, acc}, acc ||| elem}
-        end
-      end)
-      |> elem(0)
-      |> Enum.reverse
-
-      configure_joltage(buttons, levels)
-      |> IO.inspect(label: :presses)
+      {time, presses} = :timer.tc(fn -> one_machine(buttons, joltage) end)
+      time = :erlang.float_to_binary(time / 1_000_000, decimals: 2)
+      IO.puts("#{presses} in #{time} seconds")
+      presses
     end)
     |> IO.inspect
     |> Enum.sum
+  end
+
+  defp one_machine(buttons, joltage) do
+    buttons = Enum.sort_by(buttons, &popcount/1, :desc)
+    IO.inspect({buttons, joltage})
+    levels = joltage
+    |> Enum.reduce(0, fn level, levels ->
+      (levels <<< 8) ||| level
+    end)
+
+    buttons = Enum.map(buttons, fn button ->
+      increments(button, joltage)
+    end)
+
+    all = increments((1 <<< length(joltage)) - 1, joltage)
+
+    buttons = buttons
+    |> Enum.reverse
+    |> Enum.map_reduce(0, fn elem, acc ->
+      case acc do
+        nil -> {{elem, nil}, nil}
+        ^all -> {{elem, acc}, nil}
+        _ -> {{elem, acc}, acc ||| elem}
+      end
+    end)
+    |> elem(0)
+    |> Enum.reverse
+
+    configure_joltage(buttons, levels)
   end
 
   defp popcount(0), do: 0
