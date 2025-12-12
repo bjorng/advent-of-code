@@ -28,7 +28,7 @@ defmodule Day10 do
     |> Enum.map(fn {_, buttons, joltage} ->
       {time, presses} = :timer.tc(fn -> one_machine(buttons, joltage) end)
       time = :erlang.float_to_binary(time / 1_000_000, decimals: 2)
-      IO.puts("#{presses} in #{time} seconds")
+      IO.puts("#{presses} presses in #{time} seconds")
       presses
     end)
     |> IO.inspect
